@@ -153,11 +153,11 @@ def run_search_logic(query, unit="법률"):
                 if 항출력 or 항덩어리:
                     # 조출력이 되지 않았고, 첫 항이 아직 출력되지 않았다면
                     if not 조출력 and not 첫_항출력됨:
-                        # 여기서 조문내용과 항내용을 함께 출력하되, 항내용을 별도로 다시 출력하지 않음
-                        출력덩어리.append(highlight(조문내용, query))
-                        출력덩어리.append(highlight(항내용, query))
+                        # 여기서 조문내용과 항내용을 함께 한 줄에 출력
+                        출력덩어리.append(f"{highlight(조문내용, query)} {highlight(항내용, query)}")
                         첫_항출력됨 = True
                         첫_항내용 = 항내용.strip()
+                        항중복방지셋.add(항key)  # 이미 출력했으므로 중복 방지 셋에 추가
                     # 항이 이미 출력되었거나 첫 항과 같은 내용이면 중복 출력하지 않음
                     elif 항내용.strip() != 첫_항내용 and 항key not in 항중복방지셋 and 항출력:
                         출력덩어리.append(highlight(항내용, query))
@@ -172,7 +172,6 @@ def run_search_logic(query, unit="법률"):
             result_dict[law["법령명"]] = law_results
 
     return result_dict
-
 
 def run_amendment_logic(find_word, replace_word):
     을를 = 조사_을를(find_word)
