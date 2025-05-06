@@ -161,7 +161,7 @@ def run_search_logic(query, unit="법률"):
                     # 항이 이미 출력되었거나 첫 항과 같은 내용이면 중복 출력하지 않음
                     elif 항내용.strip() != 첫_항내용 and 항key not in 항중복방지셋 and 항출력:
                         출력덩어리.append(highlight(항내용, query))
-                        항중복방지셋.add(항key)
+                        항중복방지셋.add(항내용)
                     # 항 하위의 호/목 출력
                     출력덩어리.extend(항덩어리)
 
