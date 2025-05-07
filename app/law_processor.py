@@ -136,7 +136,7 @@ def run_search_logic(query, unit="법률"):
                         # 항 출력이 되지 않았고, 이 항이 아직 출력되지 않았다면
                         if not 항출력 and 항key not in 항중복방지셋:
                             항덩어리.append(highlight(항내용, query))
-                            항중복방지셋.add(항key)
+                            항중복방지셋.add(항내용)
                         항덩어리.append("&nbsp;&nbsp;" + highlight(호내용, query))
 
                     for 목 in 호.findall("목"):
@@ -147,7 +147,7 @@ def run_search_logic(query, unit="법률"):
                                 if 줄들:
                                     if not 항출력 and 항key not in 항중복방지셋:
                                         항덩어리.append(highlight(항내용, query))
-                                        항중복방지셋.add(항key)
+                                        항중복방지셋.add(항내용용)
                                     항덩어리.append("&nbsp;&nbsp;&nbsp;&nbsp;" + "<br>&nbsp;&nbsp;&nbsp;&nbsp;".join(줄들))
 
                 if 항출력 or 항덩어리:
