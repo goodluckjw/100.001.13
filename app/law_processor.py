@@ -118,7 +118,6 @@ def run_search_logic(query, unit="법률"):
             출력덩어리 = []
             조출력 = keyword_clean in clean(조문내용)
             첫_항출력됨 = False
-            항중복방지셋 = set()
 
             if 조출력:
                 출력덩어리.append(highlight(조문내용, query))
@@ -126,7 +125,6 @@ def run_search_logic(query, unit="법률"):
             for 항 in 항들:
                 항번호 = normalize_number(항.findtext("항번호", "").strip())
                 항내용 = 항.findtext("항내용", "") or ""
-                항key = f"{조문식별자}_{항번호}"
                 항출력 = keyword_clean in clean(항내용)
                 항덩어리 = []
                 하위검색됨 = False
@@ -136,31 +134,26 @@ def run_search_logic(query, unit="법률"):
                     호출력 = keyword_clean in clean(호내용)
                     if 호출력:
                         하위검색됨 = True
-                        if 항key not in 항중복방지셋:
-                            항덩어리.append(highlight(항내용, query))
-                            항중복방지셋.add(항key)
                         항덩어리.append("&nbsp;&nbsp;" + highlight(호내용, query))
 
                     for 목 in 호.findall("목"):
                         for m in 목.findall("목내용"):
                             if m.text and keyword_clean in clean(m.text):
-                                줄들 = [line.strip() for line in m.text.splitlines() if keyword_clean in clean(line)]
+                                줄들 = [line.strip() for line in m.text.splitlines()]
                                 줄들 = [highlight(line, query) for line in 줄들]
                                 if 줄들:
                                     하위검색됨 = True
-                                    if 항key not in 항중복방지셋:
-                                        항덩어리.append(highlight(항내용, query))
-                                        항중복방지셋.add(항key)
                                     항덩어리.append("&nbsp;&nbsp;&nbsp;&nbsp;" + "<br>&nbsp;&nbsp;&nbsp;&nbsp;".join(줄들))
 
                 if 항출력 or 하위검색됨:
                     if not 조출력 and not 첫_항출력됨:
                         출력덩어리.append(f"{highlight(조문내용, query)} {highlight(항내용, query)}")
                         첫_항출력됨 = True
-                        항중복방지셋.add(항key)
-                    elif 항key not in 항중복방지셋 and 항출력:
+                    elif not 첫_항출력됨:
                         출력덩어리.append(highlight(항내용, query))
-                        항중복방지셋.add(항key)
+                        첫_항출력됨 = True
+                    else:
+                        출력덩어리.append(highlight(항내용, query))
                     출력덩어리.extend(항덩어리)
 
             if 출력덩어리:
