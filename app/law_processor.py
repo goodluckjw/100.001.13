@@ -94,6 +94,7 @@ def format_location(loc):
 
 # 아래에 run_search_logic과 run_amendment_logic 삽입
 
+# 개선된 run_search_logic 함수
 def run_search_logic(query, unit="법률"):
     result_dict = {}
     keyword_clean = clean(query)
@@ -128,13 +129,14 @@ def run_search_logic(query, unit="법률"):
                 항key = f"{조문식별자}_{항번호}"
                 항출력 = keyword_clean in clean(항내용)
                 항덩어리 = []
+                하위검색됨 = False
 
                 for 호 in 항.findall("호"):
                     호내용 = 호.findtext("호내용", "") or ""
                     호출력 = keyword_clean in clean(호내용)
                     if 호출력:
-                        # 항 출력이 되지 않았고, 이 항이 아직 출력되지 않았다면
-                        if not 항출력 and 항key not in 항중복방지셋:
+                        하위검색됨 = True
+                        if 항key not in 항중복방지셋:
                             항덩어리.append(highlight(항내용, query))
                             항중복방지셋.add(항key)
                         항덩어리.append("&nbsp;&nbsp;" + highlight(호내용, query))
@@ -145,24 +147,20 @@ def run_search_logic(query, unit="법률"):
                                 줄들 = [line.strip() for line in m.text.splitlines() if keyword_clean in clean(line)]
                                 줄들 = [highlight(line, query) for line in 줄들]
                                 if 줄들:
-                                    if not 항출력 and 항key not in 항중복방지셋:
+                                    하위검색됨 = True
+                                    if 항key not in 항중복방지셋:
                                         항덩어리.append(highlight(항내용, query))
                                         항중복방지셋.add(항key)
                                     항덩어리.append("&nbsp;&nbsp;&nbsp;&nbsp;" + "<br>&nbsp;&nbsp;&nbsp;&nbsp;".join(줄들))
 
-                if 항출력 or 항덩어리:
-                    # 조출력이 되지 않았고, 첫 항이 아직 출력되지 않았다면
+                if 항출력 or 하위검색됨:
                     if not 조출력 and not 첫_항출력됨:
-                        # 여기서 조문내용과 항내용을 함께 한 줄에 출력
                         출력덩어리.append(f"{highlight(조문내용, query)} {highlight(항내용, query)}")
                         첫_항출력됨 = True
-                        첫_항내용 = 항내용.strip()
-                        항중복방지셋.add(항key)  # 이미 출력했으므로 중복 방지 셋에 추가
-                    # 항이 이미 출력되었거나 첫 항과 같은 내용이면 중복 출력하지 않음
-                    elif 항내용.strip() != 첫_항내용 and 항key not in 항중복방지셋 and 항출력:
+                        항중복방지셋.add(항key)
+                    elif 항key not in 항중복방지셋 and 항출력:
                         출력덩어리.append(highlight(항내용, query))
                         항중복방지셋.add(항key)
-                    # 항 하위의 호/목 출력
                     출력덩어리.extend(항덩어리)
 
             if 출력덩어리:
@@ -172,6 +170,8 @@ def run_search_logic(query, unit="법률"):
             result_dict[law["법령명"]] = law_results
 
     return result_dict
+
+
 
 def run_amendment_logic(find_word, replace_word):
     을를 = 조사_을를(find_word)
